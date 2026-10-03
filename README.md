@@ -117,6 +117,28 @@ leggendo il codice: sono usciti facendo una misura che non esisteva.
    lessico batte il modello generico da solo: se non lo batte, il passo 2 non
    serve e l'hanno fatta lunga per niente.
 
+## Come si prova, e come si verifica da soli
+
+```bash
+# i test del modulo
+python3 prove/test_rinomina.py
+
+# la misura: 28 trascrizioni fanno il viaggio di andata e ritorno
+PYTHONPATH=sorgenti python3 prove/roundtrip.py
+
+# i blocchi di codice dentro il workflow sono Python valido
+python3 prove/controlla_yaml.py
+```
+
+La misura ha bisogno del repository fratello accanto a questo, che su GitHub non
+c'e': in locale i due directory devono stare uno di fianco all'altro, e nella CI
+il workflow lo clona. Senza il fratello lo script **dice che non lo trova** e non
+finge di aver misurato.
+
+Il workflow non si limita a far passare i test: **controlla che la copertura non
+scenda sotto il 90%**. Quel numero e' un tetto dichiarato, e un tetto che si
+abbassa in silenzio non e' piu' un tetto.
+
 ## Regole, ereditate dal progetto
 
 Nessuna risposta senza fonte. Nessun vuoto riempito a caso. I controlli

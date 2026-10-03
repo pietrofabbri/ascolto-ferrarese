@@ -1,0 +1,161 @@
+name: Verifica
+
+# Questo repository non ha dati suoi: ha una **misura**. Il suo numero
+# dichiarato e' che il 96% delle parole sopravvive al viaggio dal suono alla
+# grafia e ritorno, e quel numero e' un tetto, non una promessa.
+#
+# Percio' il workflow non si limita a far passare i test: **controlla che il
+# numero non sia sceso**. Un tetto che si abbassa in silenzio non e' piu' un
+# tetto, e' un numero che qualcuno ha dimenticato di riguardare. Chi cambia le
+# regole di scrittura cambia di proposito il tetto, e allora scende di proposito
+# e si scrive perche'.
+#
+# Per far girare la misura serve il repository fratello, che qui non c'e'. Il
+# workflow lo clona: e' una operazione di costruzione, non di funzionamento, e
+# la regola «nessuna rete a runtime» riguarda il software che gira, non chi lo
+# costruisce. Sul computer di Pietro i due repository sono vicini e non serve
+# nessun clone.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  controlli:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Il repository fratello, per la misura
+        # Serve `dati/fonetica.jsonl` e il modulo `legge` del traduttore: sono
+        # le regole dichiarate, e questo repository non le duplica per non
+        # avere due copie che divergono senza che nessuno lo veda.
+        run: |
+          git clone --depth 1 https://github.com/pietrofabbri/traduttore-ferrarese.git \
+            ../traduttore-ferrarese
+          test -f ../traduttore-ferrarese/dati/fonetica.jsonl \
+            || { echo "ERRORE: il repository fratello non ha le trascrizioni"; exit 1; }
+
+      - name: I test
+        run: python3 prove/test_rinomina.py
+
+      - name: Il pacchetto si importa da dove deve
+        # Un controllo che non parte non e' un controllo che passa.
+        run: |
+          PYTHONPATH=sorgenti python3 -c "from ascolto import rinomina; print('pacchetto importato')"
+
+      - name: La misura, e il tetto che non si abbassa
+        # Il numero qui sotto e' quello dichiarato in `README.md`. Se le regole
+        # cambiano e il numero scende, il fallimento e' giusto: vuol dire che
+        # la dichiarazione nel README va aggiornata insieme alla regola, e che
+        # qualcuno deve guardare cosa e' successo. La soglia e' un po' sotto il
+        # valore dichiarato perche' una parola che oscilla non deve far
+        # fallire una build; il punto e' che il cambiamento non passi
+        # inosservato.
+        run: |
+          PYTHONPATH=sorgenti python3 prove/roundtrip.py | tee misura.txt
+          COPERTA=$(grep -o 'copertura del suono *[0-9]*%' misura.txt | grep -o '[0-9]*' | tail -1)
+          if [ -z "$COPERTA" ]; then
+            echo "ERRORE: la misura non ha stampato la copertura"
+            exit 1
+          fi
+          echo "copertura misurata: $COPERTA%"
+          if [ "$COPERTA" -lt 90 ]; then
+            echo "ERRORE: la copertura e' scesa sotto il 90%, e la dichiarazione"
+            echo "        nel README parla del 96%. O il tetto e' calato e va"
+            echo "        riscritto con il motivo, o c'e' un difetto."
+            exit 1
+          fi
+
+      - name: Nessun carattere fuori dal latino
+        # Una scrittura dialettale che porta dentro un ideogramma non e' una
+        # scrittura dialettale: e' un file che qualcuno ha scritto a meta' e ha
+        # lasciato cosi'. Il controllo e' meccanico e non perdona.
+        run: |
+          python3 - <<'PY'
+          import io, os, sys, unicodedata
+          sospetti = []
+          for radice, cartelle, file in os.walk("."):
+              cartelle[:] = [c for c in cartelle
+                             if c not in (".git", "__pycache__")]
+              for nome in file:
+                  if not nome.endswith((".py", ".md", ".toml", ".jsonl", ".yml")):
+                      continue
+                  percorso = os.path.join(radice, nome)
+                  try:
+                      testo = io.open(percorso, encoding="utf-8").read()
+                  except Exception:
+                      continue
+                  for ch in set(testo):
+                      nome_car = unicodedata.name(ch, "")
+                      if any(k in nome_car for k in ("CJK", "HIRAGANA",
+                                                     "KATAKANA", "HANGUL")):
+                          sospetti.append("%s: %s" % (percorso, nome_car))
+          if sospetti:
+              for riga in sospetti:
+                  print("ERRORE: %s" % riga)
+              sys.exit(1)
+          print("nessun carattere fuori dal latino")
+          PY
+
+      - name: Nessuna dipendenza fuori dalla libreria standard
+        # Il progetto deve restare eseguibile senza rete e senza modelli,
+        # perche' il caso d'uso e' un'aula con il computer spento. Una
+        # dipendenza aggiunta di nascosto renderebbe quello falso senza che
+        # nessuno lo notasse fino al giorno della lezione.
+        #
+        # Il controllo guarda **cosa importano i sorgenti**, non cosa c'e' in
+        # `pyproject.toml`: una dipendenza che si installa a mano e non
+        # finisce dichiarata e' il caso peggiore, perche' non la vede nessuno.
+        run: |
+          python3 - <<'PY2'
+          import ast, io, os, sys
+
+          # `sys.stdlib_module_names` esiste dal 3.10. Sotto, non c'e', e un
+          # controllo che non puo' girare **non deve fingere di essere
+          # passato**: e' la stessa regola che nel progetto fratello vale per
+          # Node. Meglio un controllo che si dichiara non eseguito che uno che
+          # dice «tutto bene» senza aver guardato niente.
+          if not hasattr(sys, "stdlib_module_names"):
+              print("CONTROLLO NON ESGUITO: Python %s non conosce"
+                    " sys.stdlib_module_names (serve il 3.10 o successivo)."
+                    % ".".join(str(v) for v in sys.version_info[:2]))
+              print("                Nella CI gira il 3.11 e il controllo gira.")
+              sys.exit(0)
+          STANDARDS = set(sys.stdlib_module_names) | {"ascolto"}
+          estranei = {}
+          for radice, cartelle, file in os.walk("sorgenti"):
+              cartelle[:] = [c for c in cartelle if c != "__pycache__"]
+              for nome in file:
+                  if not nome.endswith(".py"):
+                      continue
+                  percorso = os.path.join(radice, nome)
+                  albero = ast.parse(io.open(percorso, encoding="utf-8").read())
+                  for nodo in ast.walk(albero):
+                      if isinstance(nodo, ast.Import):
+                          moduli = [a.name for a in nodo.names]
+                      elif isinstance(nodo, ast.ImportFrom):
+                          moduli = [nodo.module or ""]
+                      else:
+                          continue
+                      for modulo in moduli:
+                          radice_modulo = modulo.split(".")[0]
+                          if radice_modulo and radice_modulo not in STANDARDS:
+                              estranei.setdefault(radice_modulo, []).append(percorso)
+          if estranei:
+              for modulo, percorsi in sorted(estranei.items()):
+                  print("ERRORE: %s importato da %s" % (modulo, ", ".join(sorted(set(percorsi)))))
+              print("        Se la dipendenza e' voluta, si dichiara anche in")
+              print("        pyproject.toml e si tiene fuori dal percorso di default.")
+              sys.exit(1)
+          print("ogni import e' della libreria standard")
+          PY2
