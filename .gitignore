@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+.DS_Store
+# Il corpus di audio e' di persone, e va nel protocollo prima che nel
+# repository: niente file registrati qui, niente file scaricati.
+audio/
+grezzi/
+lavorato/

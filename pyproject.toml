@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ascolto-ferrarese"
+version = "0.1.0"
+description = "Pensare un sistema che capisce il ferrarese parlato, e misurare quello che si puo' misurare"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+# Nessuna dipendenza, e questa non e' una circostanza: il progetto deve
+# restare eseguibile senza rete e senza modelli, perche' e' quello il caso
+# d'uso — un'aula con il computer spento. Un modello acustico sara' una
+# dipendenza pesante e andra' tenuta fuori dal percorso di default.
+dependencies = []
+
+[tool.setuptools.packages.find]
+where = ["sorgenti"]
