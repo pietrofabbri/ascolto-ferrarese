@@ -46,7 +46,22 @@ jobs:
             || { echo "ERRORE: il repository fratello non ha le trascrizioni"; exit 1; }
 
       - name: I test
-        run: python3 prove/test_rinomina.py
+        # I test del patto fra i due repository girano qui, e non possono
+        # girare prima: leggono il fratello, che il passo precedente clona. Il
+        # passo dopo li esegue anche come controllo a se' stante, perche' un
+        # test che passa dentro un altro test e' un test che nessuno vede
+        # fallire da solo.
+        run: |
+          python3 prove/test_rinomina.py
+          python3 prove/test_accoppiamento.py
+
+      - name: Il patto con il repository fratello
+        # Qui il fallimento e' giusto, e per la stessa ragione del tetto del
+        # 96%: se il fratello cambia i dati che questo repository legge, la
+        # dichiarazione di `prove/controlla_accoppiamento.py` va aggiornata
+        # **nello stesso commit**. Un patto fra due repository che invecchia in
+        # silenzio e' l'unico modo in cui due fratelli divergono.
+        run: python3 prove/controlla_accoppiamento.py
 
       - name: Il pacchetto si importa da dove deve
         # Un controllo che non parte non e' un controllo che passa.

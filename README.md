@@ -104,10 +104,58 @@ traduttore, che stava in guardia da una versione:
 Entrambi corretti e coperti da test. Nessuno dei due si sarebbe trovato
 leggendo il codice: sono usciti facendo una misura che non esisteva.
 
+## Il patto con il fratello, dichiarato
+
+Fra i due repository c'è un legame, e fino a poco fa era scritto in una riga
+di un commento e in un passo del workflow: si clona `traduttore-ferrarese` e se
+ne leggono `dati/fonetica.jsonl` e il modulo `legge`. Un patto non scritto
+invecchia in silenzio — il fratello aggiunge un file, questo repository
+continua a passarlo come se non ci fosse, e nessuno se ne accorge fino a una
+misura che si comporta in modo inexplicable.
+
+Ora il patto è in [`prove/controlla_accoppiamento.py`](prove/controlla_accoppiamento.py),
+e ha tre parti:
+
+1. **i file che questo repository legge**, dichiarati con **quante righe**
+   devono contenere. Se il numero cambia è un errore, e il messaggio dice quale
+   dichiarazione aggiornare: è la stessa regola del tetto del 96%, e vale per
+   gli stessi motivi;
+2. **i file di codice** di cui il patto dipende (`legge`), perché senza la
+   regola di scrittura la misura del cammino inverso non ha niente da percorrere;
+3. **il materiale** del passo (2), misurato e dichiarato.
+
+## Il materiale del vincolo di lessico, misurato
+
+Il passo (2) sceglie **una parola** per un suono ipotizzato, quindi il numero
+che conta non è quante voci ha il glossario ma quante sono **parole singole**:
+
+```
+parole singole nel glossario   15585   il materiale del passo (2)
+locuzioni nel glossario         1785   utili al modello, non al vincolo
+coppie (frasi intere)             48
+proverbi                          33   32 chiavi italiane distinte
+chiavi con piu' di una resa        1   casi in cui non si puo' scegliere senza dirlo
+```
+
+Le **1785 locuzioni** sono contate separate per una ragione precisa: sono
+sequenze, non scelte. Se il vincolo ne risponde una a un suono, non sceglie una
+parola — **si inventa una frase**, che è la cosa che questo repository esiste
+per non fare. Contate insieme alle altre, il vincolo sembrerebbe avere 17370
+scelte quando ne ha 15585.
+
+**Il caso ambiguo, dichiarato per intero.** `P0002` e `P0003` hanno lo stesso
+italiano e due ferraresi diversi: sono due rese della stessa voce del Ferri, e
+non sono un errore. Ma chi deve scegliere **non può farlo senza dirlo**, e
+questa è la prima volta che il progetto misura uno schieramento di questo
+genere. Il sistema che verrà costruito dovrà elencare le due e non scegliere:
+è il caso in cui l'astensione è l'esito giusto.
+
 ## Cosa serve davvero, in ordine
 
 1. **Un protocollo di registrazione.** Poche decine di minuti di parlante
    ferrarese, con consenso scritto, e la trascrizione fatta da due persone.
+   Niente di tutto questo lo fa un programma: è la parte lenta, ed è la parte
+   che rende vero il resto.
    Non serve un corpus: serve una **riga di base** e una misura di errore.
    Senza questo, tutto il resto è un paragone senza metro.
 2. **Il piccolo set di valutazione.** Frasi brevi, con la risposta che si
@@ -128,6 +176,12 @@ PYTHONPATH=sorgenti python3 prove/roundtrip.py
 
 # i blocchi di codice dentro il workflow sono Python valido
 python3 prove/controlla_yaml.py
+
+# i test del patto fra i due repository
+python3 prove/test_accoppiamento.py
+
+# il patto, e la misura del materiale del vincolo di lessico
+python3 prove/controlla_accoppiamento.py
 ```
 
 La misura ha bisogno del repository fratello accanto a questo, che su GitHub non
@@ -137,7 +191,11 @@ finge di aver misurato.
 
 Il workflow non si limita a far passare i test: **controlla che la copertura non
 scenda sotto il 90%**. Quel numero e' un tetto dichiarato, e un tetto che si
-abbassa in silenzio non e' piu' un tetto.
+abbassa in silenzio non e' piu' un tetto. Lo stesso vale per il **patto con il
+fratello**: se i dati che questo repository legge cambiano numero, la build
+fallisce e il messaggio dice quale dichiarazione aggiornare nello stesso
+commit. Due repository che si passano dei dati senza un patto scritto divergono
+prima o poi, e divergono in silenzio.
 
 ## Regole, ereditate dal progetto
 
@@ -156,6 +214,10 @@ modo di accorgersene.
   dichiara i dubbi invece di sciogliere le ambiguità a caso.
 - `prove/roundtrip.py` — la misura. È la parte che rende tutto il resto
   verificabile.
-- `prove/test_rinomina.py` — i test.
+- `prove/test_rinomina.py` — i test del modulo.
+- `prove/controlla_accoppiamento.py` — il patto con il fratello: quali file
+  questo repository legge, quante righe devono avere, e quanto materiale ha il
+  vincolo di lessico.
+- `prove/test_accoppiamento.py` — i test del patto.
 
 Nessuna dipendenza, nessuna rete, nessun modello: qui si ragiona sulla scrittura.
