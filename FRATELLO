@@ -1,0 +1,8 @@
+# Il commit di traduttore-ferrarese che questo repository legge.
+#
+# La CI clona **questo** commit, non l'ultimo di `main`: cosi' una modifica ai
+# dati del fratello non rompe la CI di qui senza che nessuno l'abbia deciso.
+# Per aggiornare il patto: si cambia questa riga, si rilancia
+# `python3 prove/controlla_accoppiamento.py` con il fratello a quel commit, e
+# si aggiornano nello stesso commit i numeri di `PATTO` e del README.
+1ac6fd84652cbe8af8e16c46723cb250a7ba8867

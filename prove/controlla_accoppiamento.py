@@ -10,7 +10,7 @@ Tutto il resto è un patto non scritto: nessuno dice **quali** file servono,
 per il passo (2) di questa architettura. Il legame, così, invecchia in
 silenzio: il fratello aggiunge un file, questo repository continua a passarlo
 come se non ci fosse, e nessuno se ne accorge fino a una misura che si
-comporta in modo inexplicable.
+comporta in modo inspiegabile.
 
 Quindi qui il patto è **scritto**, con i numeri accanto:
 
@@ -59,7 +59,7 @@ PATTO = {
                              "serve_a": "il materiale del vincolo di lessico"},
     "dati/coppie.jsonl": {"righe": 48,
                           "serve_a": "il materiale del vincolo di lessico"},
-    "dati/proverbi.jsonl": {"righe": 33,
+    "dati/proverbi.jsonl": {"righe": 28,
                             "serve_a": "il materiale del vincolo di lessico, "
                                        "le frasi intere"},
 }

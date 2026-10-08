@@ -1,7 +1,7 @@
 ---
 titolo: Ascolto ferrarese
-versione: 0.1
-data: 2026-10-03
+versione: 0.2
+data: 2026-10-08
 autore: progetto «I cinque duchi»
 ---
 
@@ -11,7 +11,7 @@ Un sistema che **capisce** il ferrarese parlato. Non esiste ancora, e questo
 repository dice perché non può esistere ancora, cosa manca, e cosa si può
 cominciare a costruire **oggi** senza avere ancora quei pezzi.
 
-Repository fratello di [`traduttore-ferrarese`](../traduttore-ferrarese), che
+Repository fratello di [`traduttore-ferrarese`](https://github.com/pietrofabbri/traduttore-ferrarese), che
 traduce fra italiano e ferrarese scritto. Qui si ragiona sul ferrarese **detto**.
 
 ## La risposta corta, prima di tutto
@@ -86,6 +86,14 @@ acustico funziona. Se il numero fosse basso, il primo problema non sarebbe il
 modello: sarebbe che non sappiamo scrivere il ferrarese che ascoltiamo, e
 quello va risolto prima di comprare qualunque macchina.
 
+**Il limite della misura, dichiarato.** Le 28 trascrizioni del fratello sono
+tutte `attendibilita: I`: sono una **lettura della grafia**, non un ascolto. Il
+viaggio di andata e ritorno quindi misura se le regole di scrittura si
+invertono, non se il ferrarese **parlato** si lascia scrivere. Su 28 parole su
+17370, e senza un solo suono di una persona, il 96% dice che la mappa e'
+coerente con se stessa; quanto sia vicina alla lingua detta lo dira' il primo
+brano registrato.
+
 L'unico caso non scrivibile è dichiarato, non risolto: `/ɲ/` davanti a
 consonante (`magnàr` = /maˈɲnar/) non è prodotto da nessuna grafia che il
 progetto conosca. Il modulo si ferma e lo dice.
@@ -111,7 +119,7 @@ di un commento e in un passo del workflow: si clona `traduttore-ferrarese` e se
 ne leggono `dati/fonetica.jsonl` e il modulo `legge`. Un patto non scritto
 invecchia in silenzio — il fratello aggiunge un file, questo repository
 continua a passarlo come se non ci fosse, e nessuno se ne accorge fino a una
-misura che si comporta in modo inexplicable.
+misura che si comporta in modo inspiegabile.
 
 Ora il patto è in [`prove/controlla_accoppiamento.py`](prove/controlla_accoppiamento.py),
 e ha tre parti:
@@ -133,7 +141,7 @@ che conta non è quante voci ha il glossario ma quante sono **parole singole**:
 parole singole nel glossario   15585   il materiale del passo (2)
 locuzioni nel glossario         1785   utili al modello, non al vincolo
 coppie (frasi intere)             48
-proverbi                          33   32 chiavi italiane distinte
+proverbi                          28   27 chiavi italiane distinte
 chiavi con piu' di una resa        1   casi in cui non si puo' scegliere senza dirlo
 ```
 
@@ -142,6 +150,14 @@ sequenze, non scelte. Se il vincolo ne risponde una a un suono, non sceglie una
 parola — **si inventa una frase**, che è la cosa che questo repository esiste
 per non fare. Contate insieme alle altre, il vincolo sembrerebbe avere 17370
 scelte quando ne ha 15585.
+
+**Quello che questa misura non vede ancora.** L'ambiguita' e' contata solo fra le
+frasi intere. Nel glossario c'e' un'ambiguita' molto piu' grande, e per il passo
+(2) e' quella che conta: il fratello scrive le voci nella grafia di tre fonti
+diverse, e **1631 lemmi italiani** hanno piu' di una forma ferrarese secondo la
+fonte (*mangiare* → `magnàr` e `mañàr`). Due scritture dello stesso suono sono
+proprio il caso in cui il vincolo deve astenersi o dichiarare la scelta. La
+questione e' aperta nel fratello, `AGENTS.md` §6 punto 9.
 
 **Il caso ambiguo, dichiarato per intero.** `P0002` e `P0003` hanno lo stesso
 italiano e due ferraresi diversi: sono due rese della stessa voce del Ferri, e
@@ -186,7 +202,10 @@ python3 prove/controlla_accoppiamento.py
 
 La misura ha bisogno del repository fratello accanto a questo, che su GitHub non
 c'e': in locale i due directory devono stare uno di fianco all'altro, e nella CI
-il workflow lo clona. Senza il fratello lo script **dice che non lo trova** e non
+il workflow lo clona **al commit scritto in `FRATELLO`**, non all'ultimo di
+`main`. Cosi' una modifica ai dati del fratello non rompe questa CI per caso:
+aggiornare il patto e' una scelta, e si fa cambiando quella riga insieme ai
+numeri di `PATTO` e di questo README. Senza il fratello lo script **dice che non lo trova** e non
 finge di aver misurato.
 
 Il workflow non si limita a far passare i test: **controlla che la copertura non

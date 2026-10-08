@@ -39,9 +39,17 @@ jobs:
         # Serve `dati/fonetica.jsonl` e il modulo `legge` del traduttore: sono
         # le regole dichiarate, e questo repository non le duplica per non
         # avere due copie che divergono senza che nessuno lo veda.
+        #
+        # Si clona il commit scritto in `FRATELLO`, non l'ultimo di `main`: fino
+        # al 2026-10-08 ogni modifica ai dati del fratello rompeva questa CI
+        # senza che nessuno l'avesse deciso. Aggiornare il patto e' una scelta.
         run: |
-          git clone --depth 1 https://github.com/pietrofabbri/traduttore-ferrarese.git \
-            ../traduttore-ferrarese
+          COMMIT=$(grep -v '^#' FRATELLO | grep -v '^$' | head -1)
+          echo "fratello al commit $COMMIT"
+          git init -q ../traduttore-ferrarese
+          git -C ../traduttore-ferrarese fetch -q --depth 1 \
+            https://github.com/pietrofabbri/traduttore-ferrarese.git "$COMMIT"
+          git -C ../traduttore-ferrarese checkout -q FETCH_HEAD
           test -f ../traduttore-ferrarese/dati/fonetica.jsonl \
             || { echo "ERRORE: il repository fratello non ha le trascrizioni"; exit 1; }
 
@@ -141,7 +149,7 @@ jobs:
           # Node. Meglio un controllo che si dichiara non eseguito che uno che
           # dice «tutto bene» senza aver guardato niente.
           if not hasattr(sys, "stdlib_module_names"):
-              print("CONTROLLO NON ESGUITO: Python %s non conosce"
+              print("CONTROLLO NON ESEGUITO: Python %s non conosce"
                     " sys.stdlib_module_names (serve il 3.10 o successivo)."
                     % ".".join(str(v) for v in sys.version_info[:2]))
               print("                Nella CI gira il 3.11 e il controllo gira.")

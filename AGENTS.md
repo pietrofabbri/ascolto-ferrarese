@@ -55,7 +55,7 @@ fine-tuned perde.
 
 Il passo che trasforma un suono in una parola ferrarese è l'unico che conosce
 il dialetto, ed è nostro. Le sue regole sono **le stesse** del traduttore e
-sono tenute allimate a mano, in due copie. Il fatto che siano due copie è un
+sono tenute allineate a mano, in due copie. Il fatto che siano due copie è un
 costo noto e dichiarato: `prove/roundtrip.py` confronta i risultati e il numero
 dice se vanno ancora d'accordo. Se il numero scende, è un difetto, e si cerca.
 
