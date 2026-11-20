@@ -55,9 +55,9 @@ def _fratello() -> str:
 PATTO = {
     "dati/fonetica.jsonl": {"righe": 28,
                             "serve_a": "la misura del cammino inverso"},
-    "dati/glossario.jsonl": {"righe": 17370,
+    "dati/glossario.jsonl": {"righe": 19073,
                              "serve_a": "il materiale del vincolo di lessico"},
-    "dati/coppie.jsonl": {"righe": 48,
+    "dati/coppie.jsonl": {"righe": 52,
                           "serve_a": "il materiale del vincolo di lessico"},
     "dati/proverbi.jsonl": {"righe": 28,
                             "serve_a": "il materiale del vincolo di lessico, "

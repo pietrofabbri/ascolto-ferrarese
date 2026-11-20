@@ -5,4 +5,4 @@
 # Per aggiornare il patto: si cambia questa riga, si rilancia
 # `python3 prove/controlla_accoppiamento.py` con il fratello a quel commit, e
 # si aggiornano nello stesso commit i numeri di `PATTO` e del README.
-1ac6fd84652cbe8af8e16c46723cb250a7ba8867
+6b953889182dd5703c2c3604ae0eae8930c676d4
