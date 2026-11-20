@@ -1,7 +1,7 @@
 ---
 titolo: Ascolto ferrarese
-versione: 0.2
-data: 2026-10-08
+versione: 0.3
+data: 2026-11-20
 autore: progetto «I cinque duchi»
 ---
 
@@ -90,7 +90,7 @@ quello va risolto prima di comprare qualunque macchina.
 tutte `attendibilita: I`: sono una **lettura della grafia**, non un ascolto. Il
 viaggio di andata e ritorno quindi misura se le regole di scrittura si
 invertono, non se il ferrarese **parlato** si lascia scrivere. Su 28 parole su
-17370, e senza un solo suono di una persona, il 96% dice che la mappa e'
+19073, e senza un solo suono di una persona, il 96% dice che la mappa e'
 coerente con se stessa; quanto sia vicina alla lingua detta lo dira' il primo
 brano registrato.
 
@@ -138,26 +138,30 @@ Il passo (2) sceglie **una parola** per un suono ipotizzato, quindi il numero
 che conta non è quante voci ha il glossario ma quante sono **parole singole**:
 
 ```
-parole singole nel glossario   15585   il materiale del passo (2)
-locuzioni nel glossario         1785   utili al modello, non al vincolo
-coppie (frasi intere)             48
+parole singole nel glossario   17150   il materiale del passo (2)
+locuzioni nel glossario         1923   utili al modello, non al vincolo
+coppie (frasi intere)             52
 proverbi                          28   27 chiavi italiane distinte
 chiavi con piu' di una resa        1   casi in cui non si puo' scegliere senza dirlo
 ```
 
-Le **1785 locuzioni** sono contate separate per una ragione precisa: sono
+Le **1923 locuzioni** sono contate separate per una ragione precisa: sono
 sequenze, non scelte. Se il vincolo ne risponde una a un suono, non sceglie una
 parola — **si inventa una frase**, che è la cosa che questo repository esiste
-per non fare. Contate insieme alle altre, il vincolo sembrerebbe avere 17370
-scelte quando ne ha 15585.
+per non fare. Contate insieme alle altre, il vincolo sembrerebbe avere 19073
+scelte quando ne ha 17150.
 
 **Quello che questa misura non vede ancora.** L'ambiguita' e' contata solo fra le
 frasi intere. Nel glossario c'e' un'ambiguita' molto piu' grande, e per il passo
-(2) e' quella che conta: il fratello scrive le voci nella grafia di tre fonti
-diverse, e **1631 lemmi italiani** hanno piu' di una forma ferrarese secondo la
-fonte (*mangiare* → `magnàr` e `mañàr`). Due scritture dello stesso suono sono
-proprio il caso in cui il vincolo deve astenersi o dichiarare la scelta. La
-questione e' aperta nel fratello, `AGENTS.md` §6 punto 9.
+(2) e' quella che conta. Dalla 0.42 il fratello legge tutto in **una grafia
+sola**, all'italiana (le voci di Bigoni si convertono alla lettura con
+`sorgenti/traduttore/grafia.py`, e il file resta come la fonte lo scrive:
+questo repository legge il file, quindi la grafia di Bigoni, e il passo (2)
+dovra' passare dalla stessa conversione). Anche dopo la conversione **1638
+lemmi italiani** hanno piu' di una forma ferrarese secondo la fonte
+(*ragione* → `ragion` e `rason`): per lo piu' varianti vere, e proprio il caso
+in cui il vincolo deve astenersi o dichiarare la scelta. Misurato il
+2026-11-20 sul fratello alla 0.56.
 
 **Il caso ambiguo, dichiarato per intero.** `P0002` e `P0003` hanno lo stesso
 italiano e due ferraresi diversi: sono due rese della stessa voce del Ferri, e
